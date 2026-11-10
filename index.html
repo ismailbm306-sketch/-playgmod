@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PLAYMOD — Download Free Games & MOD APKs (2026)</title>
+  <meta name="description" content="Discover and download the latest games and MOD APKs for Android & iOS — fast, safe, and always updated on PLAYMOD.">
+  <link rel="icon" href="https://public-frontend-1300249583.cos.ap-nanjing.myqcloud.com/commonfile/DefaultAppLogo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* =========================================
+       RESET & BASE
+    ========================================= */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0a0a0f;
+      --bg-card: #14141f;
+      --bg-card-hover: #1a1a2e;
+      --primary: #6c5ce7;
+      --primary-hover: #5b4bc4;
+      --accent: #00f2fe;
+      --accent-hover: #00d4e0;
+      --orange: #ff9f43;
+      --text: #ffffff;
+      --text-muted: #a0a0b0;
+      --border: #222;
+      --border-light: rgba(108,92,231,0.2);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+    .py-16 { padding: 60px 0; }
+    .bg-card { background: var(--bg-card); }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+    ul { list-style: none; }
+
+    /* Typography */
+    h1, h2, h3, h4 { font-family: 'Orbitron', sans-serif; }
+    .neon-text { color: var(--primary); text-shadow: 0 0 10px rgba(108,92,231,0.5); }
+    .neon-text-cyan { color: var(--accent); text-shadow: 0 0 10px rgba(0,242,254,0.5); }
+    .neon-text-orange { color: var(--orange); text-shadow: 0 0 10px rgba(255,159,67,0.5); }
+
+    /* =========================================
+       NAVBAR
+    ========================================= */
+    .navbar { background: rgba(10,10,15,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 15px 0; position: sticky; top: 0; z-index: 100; }
+    .navbar-inner { display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; color: var(--text); }
+    .logo span { color: var(--primary); }
+    .nav-links { display: flex; gap: 25px; }
+    .nav-links a { color: var(--text-muted); font-size: 0.95rem; transition: 0.3s; }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* =========================================
+       HERO
+    ========================================= */
+    .hero { text-align: center; padding: 80px 0; background: radial-gradient(circle at center, #1a1a2e 0%, var(--bg) 100%); position: relative; }
+    .hero-badges { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .badge { background: rgba(108,92,231,0.2); border: 1px solid var(--primary); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; }
+    .badge-accent { background: rgba(0,242,254,0.15); border-color: var(--accent); }
+    .hero h1 { font-size: 3rem; margin-bottom: 20px; line-height: 1.2; }
+    .hero p { color: var(--text-muted); font-size: 1.2rem; margin-bottom: 30px; max-width: 700px; margin-left: auto; margin-right: auto; }
+    .hero-cta { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+    .hero-stats { display: flex; justify-content: center; gap: 50px; flex-wrap: wrap; }
+    .hero-stats div { display: flex; flex-direction: column; align-items: center; }
+    .stat-value { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 900; color: var(--primary); }
+    .stat-value.cyan { color: var(--accent); }
+    .stat-value.orange { color: var(--orange); }
+    .stat-label { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* =========================================
+       BUTTONS
+    ========================================= */
+    .btn { display: inline-block; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: 0.3s; cursor: pointer; border: none; font-family: inherit; font-size: 1rem; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); box-shadow: 0 0 15px rgba(108,92,231,0.6); }
+    .btn-accent { background: var(--accent); color: #000; }
+    .btn-accent:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(0,242,254,0.4); }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-sm { padding: 6px 14px; font-size: 0.85rem; background: var(--accent); color: #000; border-radius: 6px; font-weight: 600; display: inline-block; transition: 0.3s; }
+    .btn-sm:hover { background: var(--accent-hover); }
+
+    /* =========================================
+       AD WRAPPERS
+    ========================================= */
+    .ad-wrapper { text-align: center; margin: 30px auto; display: flex; justify-content: center; }
+    .ad-slot { min-height: 60px; display: flex; align-items: center; justify-content: center; }
+    .ad-desktop { display: block; }
+    .ad-mobile { display: none; }
+    .ad-sm { max-width: 468px; margin: 0 auto; }
+
+    /* =========================================
+       SECTION HEAD
+    ========================================= */
+    .section-head { text-align: center; margin-bottom: 40px; }
+    .section-head h2 { font-size: 2.2rem; margin-bottom: 10px; }
+    .section-head p { color: var(--text-muted); }
+
+    /* =========================================
+       FILTERS
+    ========================================= */
+    .filter-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 40px; }
+    .filter-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: 0.3s; font-family: inherit; font-size: 0.9rem; }
+    .filter-btn:hover, .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* =========================================
+       GRID & CARDS
+    ========================================= */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+    .game-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: 0.3s; display: flex; flex-direction: column; }
+    .game-card:hover { border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(108,92,231,0.15); }
+    .card-img-wrap { position: relative; }
+    .game-card img { width: 100%; height: 180px; object-fit: cover; background: #000; }
+    .badge-trending { position: absolute; top: 10px; left: 10px; background: rgba(108,92,231,0.9); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+    .badge-size { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; }
+    .card-body { padding: 15px; display: flex; flex-direction: column; flex: 1; }
+    .card-category { font-size: 0.8rem; color: var(--accent); margin-bottom: 8px; }
+    .card-title { font-size: 1rem; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+    .card-downloads { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* =========================================
+       TRENDING LIST
+    ========================================= */
+    .trending-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+    .trending-list { display: flex; flex-direction: column; gap: 15px; }
+    .trending-row { display: flex; align-items: center; gap: 15px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px; transition: 0.3s; }
+    .trending-row:hover { border-color: var(--primary); }
+    .rank { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 900; color: var(--primary); min-width: 30px; }
+    .trending-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; background: #000; }
+    .trending-info { flex: 1; min-width: 0; }
+    .trending-title { font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+    .trending-meta { display: flex; gap: 15px; font-size: 0.8rem; color: var(--text-muted); }
+
+    /* =========================================
+       NEWSLETTER
+    ========================================= */
+    .newsletter { text-align: center; padding: 80px 0; background: linear-gradient(135deg, #14141f 0%, #1a1a2e 100%); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .newsletter h2 { font-size: 2rem; margin-bottom: 15px; }
+    .newsletter p { color: var(--text-muted); margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto; }
+    .newsletter-form { display: flex; gap: 10px; max-width: 500px; margin: 0 auto; flex-wrap: wrap; justify-content: center; }
+    .newsletter-form input { flex: 1; min-width: 200px; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; }
+    .newsletter-form input:focus { outline: none; border-color: var(--primary); }
+
+    /* =========================================
+       FOOTER
+    ========================================= */
+    .footer { padding: 60px 0 20px; background: var(--bg); border-top: 1px solid var(--border); }
+    .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; margin-bottom: 40px; }
+    .footer h4 { font-family: 'Orbitron', sans-serif; margin-bottom: 15px; color: var(--text); font-size: 1rem; }
+    .footer p { color: var(--text-muted); font-size: 0.9rem; }
+    .footer ul li { margin-bottom: 8px; }
+    .footer ul li a { color: var(--text-muted); font-size: 0.9rem; transition: 0.3s; }
+    .footer ul li a:hover { color: var(--primary); }
+    .footer-bottom { text-align: center; padding-top: 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.85rem; }
+
+    /* =========================================
+       RESPONSIVE
+    ========================================= */
+    @media (max-width: 900px) {
+      .trending-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .hero { padding: 50px 0; }
+      .hero-stats { gap: 25px; }
+      .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+      .game-card img { height: 140px; }
+      .ad-desktop { display: none; }
+      .ad-mobile { display: block; }
+      .trending-row { padding: 10px 12px; gap: 10px; }
+      .rank { font-size: 1.2rem; }
+      .trending-img { width: 40px; height: 40px; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== NAVBAR ========== -->
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <a class="logo" href="index.html">PLAY<span>MOD</span></a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="#categories">Categories</a>
+        <a href="#featured">Featured</a>
+        <a href="#trending">Trending</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ========== HERO ========== -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badges">
+        <span class="badge">🔥 Updated Daily 2026</span>
+        <span class="badge badge-accent">⭐ 60+ Verified Releases</span>
+      </div>
+      <h1>Download the Best <span class="neon-text">MOD APKs & Games</span> Free</h1>
+      <p>Discover 60+ high-speed mobile games, unlocked MOD menus, and verified direct mirror links for iOS and Android.</p>
+      <div class="hero-cta">
+        <a href="#categories" class="btn btn-accent">⬇ Browse Games</a>
+        <a href="#categories" class="btn btn-outline">View Categories</a>
+      </div>
+      <div class="hero-stats">
+        <div><span class="stat-value">60+</span><span class="stat-label">Games & MODs</span></div>
+        <div><span class="stat-value cyan">100%</span><span class="stat-label">Clean & Safe</span></div>
+        <div><span class="stat-value orange">4.8</span><span class="stat-label">Avg Rating</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== AD SLOT 1 (TOP 728x90) ========== -->
+  <div class="ad-wrapper container">
+    <div class="ad-slot ad-desktop">
+      <!-- حط كود الإعلان ديالك هنا (728x90) -->
+      <script src="https://bellnewyork.org/22/120cff8af1e7b997b08834cc11e14d0a" class="atScript120cff8af1e7b997b08834cc11e14d0a_0"></script>
+    </div>
+    <div class="ad-slot ad-mobile">
+      <!-- حط كود الإعلان ديالك هنا (320x50) -->
+    </div>
+  </div>
+
+  <!-- ========== CATEGORIES + GAMES ========== -->
+  <section id="categories" class="py-16">
+    <div class="container">
+      <div class="section-head">
+        <h2>Browse by <span class="neon-text-cyan">Category</span></h2>
+        <p>Filter all 60 games and find your next adventure</p>
+      </div>
+      
+      <div class="filter-buttons" id="filterButtons">
+        <button class="filter-btn active" data-cat="all">🔥 All Games</button>
+        <button class="filter-btn" data-cat="mod">⚡ MODs Only</button>
+        <button class="filter-btn" data-cat="action">⚔️ Action</button>
+        <button class="filter-btn" data-cat="adventure">🗺️ Adventure</button>
+        <button class="filter-btn" data-cat="racing">🏎️ Racing</button>
+        <button class="filter-btn" data-cat="simulation">🌲 Simulation</button>
+        <button class="filter-btn" data-cat="sports">⚽ Sports</button>
+        <button class="filter-btn" data-cat="horror">👻 Horror</button>
+        <button class="filter-btn" data-cat="arcade">👾 Arcade</button>
+        <button class="filter-btn" data-cat="social">📱 Social</button>
+        <button class="filter-btn" data-cat="tutorial">📖 Tutorials</button>
+      </div>
+
+      <!-- AD SLOT 2 (MIDDLE 728x90) -->
+      <div class="ad-wrapper">
+        <div class="ad-slot ad-desktop">
+          <script src="https://bellnewyork.org/22/120cff8af1e7b997b08834cc11e14d0a" class="atScript120cff8af1e7b997b08834cc11e14d0a_0"></script>
+        </div>
+      </div>
+
+      <!-- GAMES GRID -->
+      <div class="grid" id="gameGrid"></div>
+
+      <!-- AD SLOT 3 (BOTTOM 468x60) -->
+      <div class="ad-wrapper">
+        <div class="ad-slot ad-sm">
+          <script src="https://bellnewyork.org/22/5791a985e8341d50cc322024c737a68c" class="atScript5791a985e8341d50cc322024c737a68c_0"></script>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FEATURED ========== -->
+  <section id="featured" class="py-16 bg-card">
+    <div class="container">
+      <div class="section-head">
+        <h2><span class="neon-text">Featured</span> Releases</h2>
+        <p>Hand-picked top titles and requested mods</p>
+      </div>
+      <div class="grid" id="featuredGrid"></div>
+    </div>
+  </section>
+
+  <!-- ========== TRENDING ========== -->
+  <section id="trending" class="py-16">
+    <div class="container">
+      <div class="section-head">
+        <h2><span class="neon-text-orange">Top</span> Downloads</h2>
+      </div>
+      <div class="trending-layout">
+        <div class="trending-list" id="trendingList"></div>
+        <div class="trending-sidebar">
+          <!-- AD SLOT SIDEBAR (300x250 & 160x600) -->
+          <div class="ad-slot" style="margin-bottom: 20px;">
+            <script src="https://bellnewyork.org/22/b15ca5a5d1de28583ead0c85cdb02a35" class="atScriptb15ca5a5d1de28583ead0c85cdb02a35_0"></script>
+          </div>
+          <div class="ad-slot">
+            <script src="https://bellnewyork.org/22/d612065c968a59ffcd4dbc21105676a4" class="atScriptd612065c968a59ffcd4dbc21105676a4_0"></script>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== NEWSLETTER ========== -->
+  <section class="newsletter">
+    <div class="container">
+      <h2><span class="neon-text">Never Miss</span> a New Release</h2>
+      <p>Subscribe to get notified about the latest MOD releases, new APK updates, and free iOS downloads delivered straight to your inbox.</p>
+      <form class="newsletter-form" id="newsletterForm">
+        <input type="email" placeholder="Enter your email" required>
+        <button type="submit" class="btn btn-accent">Subscribe</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <a class="logo" href="index.html">PLAY<span>MOD</span></a>
+          <p style="margin-top: 10px;">Your ultimate destination for verified premium MOD APKs, unlocked games, and high-speed downloads for iOS & Android.</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#featured">Featured Games</a></li>
+            <li><a href="#categories">Categories</a></li>
+            <li><a href="#trending">Trending</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Categories</h4>
+          <ul>
+            <li><a href="index.html?cat=mod">⚡ MODs Only</a></li>
+            <li><a href="index.html?cat=action">⚔️ Action</a></li>
+            <li><a href="index.html?cat=adventure">🗺️ Adventure</a></li>
+            <li><a href="index.html?cat=racing">🏎️ Racing</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="dmca.html">DMCA</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 PLAYMOD. All rights reserved. High-speed mobile gaming mirrors.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========== SCRIPTS ========== -->
+  <script>
+    // =========================================
+    // ALL GAMES DATA (extracted from your file)
+    // =========================================
+    const gamesData = [
+      { id: "gta-san-andreas-definitive-apk", title: "GTA: San Andreas – Definitive APK", category: "Action", image: "https://apkvision.org/wp-content/uploads/2023/12/gta-san-andreas-definitive-1-140x140.png", size: "6 Go", downloads: "87K+", rating: "5", desc: "The iconic classic game is set to delight its numerous fans with its revamped edition.", trending: "⚡ MOD APK" },
+      { id: "pes-2017", title: "Pes 2017", category: "Sports", image: "https://i.postimg.cc/LXXJTLw5/cover-33a7c9f0-bf67-40c5-a0bc-76a46a501e84-bcc4335b4345-320.webp", size: "6.3 Go", downloads: "34k+", rating: "4.7", desc: "The award winning series returns taking the famed gameplay to a new level.", trending: "🔥 TRENDING" },
+      { id: "pes-2013-pro-evolution-soccer", title: "PES 2013: Pro Evolution Soccer", category: "Sports", image: "https://i.postimg.cc/Yq9FML3d/cover-42ba80bb-e5df-47c6-82c7-79b5299915e6-757f52cfcc6f-320.webp", size: "1.35 Go", downloads: "56k+", rating: "4.9", desc: "Pro Evolution Soccer returns to the roots of soccer with unique levels of control.", trending: "🔥 TRENDING" },
+      { id: "melon-sandbox-mod-apk", title: "MELON SANDBOX MOD APK", category: "Adventure", image: "https://an1.com/uploads/posts/2026-03/1774263013_melon-sandbox.png", size: "320.8 MB", downloads: "235K+", rating: "4.7", desc: "Melon Sandbox - engaging 2D sandbox game with realistic physics.", trending: "⚡ MOD APK" },
+      { id: "manok-na-pula-mod-apk", title: "Manok Na Pula Mod APK", category: "Action", image: "https://manpulamodapk.com/wp-content/uploads/2026/01/Manok_Na_Pula_Icon.webp", size: "200 mo", downloads: "54k+", rating: "4.9", desc: "Manok Na Pula is a popular rooster-fighting game.", trending: "⚡ MOD APK" },
+      { id: "roblox-lite", title: "Roblox Lite", category: "Action", image: "https://i.postimg.cc/9FMkt88N/roblox-lite-apk.webp", size: "1.1 GB", downloads: "890K+", rating: "4.6", desc: "Experience upcoming features and new additions to the platform.", trending: "⚡ MOD APK" },
+      { id: "roblox-beta", title: "Roblox Beta", category: "Action", image: "https://i.postimg.cc/hj0n1kfV/20251217-201942.png", size: "1.2 GB", downloads: "785K+", rating: "4.6", desc: "Experience upcoming features and new additions.", trending: "⚡ MOD APK" },
+      { id: "minecraft", title: "Minecraft", category: "Action", image: "https://i.postimg.cc/rm77tyNY/minecraft-download-minecraft.avif", size: "1.4 GB", downloads: "624K+", rating: "4.8", desc: "Build anything you can imagine.", trending: "🔥 TRENDING" },
+      { id: "gta-vice-city", title: "GTA: Vice City", category: "Action", image: "https://i.postimg.cc/QMBnvvLn/resize.webp", size: "2.1 GB", downloads: "710K+", rating: "4.7", desc: "Welcome to the 1980s.", trending: "⚡ MOD APK" },
+      { id: "red-dead-redemption-netflix", title: "Red Dead Redemption NETFLIX", category: "Action", image: "https://i.postimg.cc/fb0B8XmM/resize.webp", size: "2.5 GB", downloads: "542K+", rating: "4.8", desc: "Experience the epic western adventure.", trending: "⚡ MOD APK" },
+      { id: "naruto-ultimate-ninja-storm", title: "NARUTO: Ultimate Ninja STORM", category: "Action", image: "https://apkvision.org/wp-content/uploads/2024/09/naruto-ultimate-ninja-storm-140x140.png", size: "2.0 GB", downloads: "467K+", rating: "4.6", desc: "Ultimate ninja battle.", trending: "" },
+      { id: "sons-of-the-forest", title: "Sons Of The Forest", category: "Horror", image: "https://i.postimg.cc/CLSzC7gd/OIP.jpg", size: "2.8 GB", downloads: "398K+", rating: "4.6", desc: "Survival horror redefined.", trending: "" },
+      { id: "ps4-simulator", title: "PS4 Simulator", category: "Simulation", image: "https://i.postimg.cc/15GDs49F/unnamed.webp", size: "0.98 GB", downloads: "512K+", rating: "3.9", desc: "PS4 UI on your mobile.", trending: "" },
+      { id: "my-summer-car", title: "My Summer Car", category: "Racing", image: "https://i.postimg.cc/yNvJWS5Y/OIP.jpg", size: "1.6 GB", downloads: "376K+", rating: "4.8", desc: "Car mechanic simulator.", trending: "" },
+      { id: "dirt-trackin-2", title: "Dirt Trackin 2", category: "Racing", image: "https://i.postimg.cc/D0m17cyB/unnamed.webp", size: "1.3 GB", downloads: "820K+", rating: "4.2", desc: "Dirt track racing simulator.", trending: "" },
+      { id: "mx-bikes", title: "MX Bikes", category: "Racing", image: "https://i.postimg.cc/RZ2syNG3/OIP.jpg", size: "2.2 GB", downloads: "445K+", rating: "4.7", desc: "Realistic motocross simulator.", trending: "" },
+      { id: "assetto-corsa", title: "Assetto Corsa", category: "Racing", image: "https://i.postimg.cc/BQpfrcPr/OIP.jpg", size: "2.9 GB", downloads: "690K+", rating: "4.9", desc: "Ultimate racing simulator.", trending: "" },
+      { id: "tennis-clash", title: "Tennis Clash", category: "Sports", image: "https://i.postimg.cc/jSqt2krD/OIP.jpg", size: "1.0 GB", downloads: "758K+", rating: "4.3", desc: "Fast-paced online tennis.", trending: "" },
+      { id: "watch-dogs-2", title: "Watch_Dogs 2", category: "Adventure", image: "https://i.postimg.cc/TPwd7Nkz/OIP.jpg", size: "2.7 GB", downloads: "410K+", rating: "4.5", desc: "Open-world San Francisco.", trending: "" },
+      { id: "uncharted-4", title: "Uncharted 4", category: "Adventure", image: "https://i.ibb.co/HDqsxFbT/Uncharted-4-1.jpg", size: "2.6 GB", downloads: "670K+", rating: "4.9", desc: "A Thief's End.", trending: "⚡ MOD APK" },
+      { id: "beamng-drive", title: "BeamNG.drive", category: "Simulation", image: "https://i.postimg.cc/44KKNy1g/OIP.jpg", size: "1.9 GB", downloads: "355K+", rating: "4.8", desc: "Soft-body physics driving.", trending: "" },
+      { id: "baseball-9", title: "BASEBALL 9", category: "Sports", image: "https://i.postimg.cc/7PBCq7z1/OIP.jpg", size: "0.95 GB", downloads: "880K+", rating: "4.6", desc: "Arcade baseball game.", trending: "" },
+      { id: "geometry-dash", title: "Geometry Dash", category: "Arcade", image: "https://i.postimg.cc/yx6SvyZd/OIP.jpg", size: "0.9 GB", downloads: "743K+", rating: "4.7", desc: "Rhythm-based action platformer.", trending: "" },
+      { id: "gta-v", title: "GTA V", category: "Adventure", image: "https://apkvision.org/wp-content/uploads/2019/08/ff3e12af5edebc5301ca1571986bb68d-140x140.png", size: "2.5 GB", downloads: "523K+", rating: "4.8", desc: "Los Santos open-world.", trending: "⚡ MOD APK" },
+      { id: "skyrim", title: "Skyrim", category: "Action", image: "https://i.postimg.cc/MZhS0p2F/1470660830-3065-jaquette-avant.jpg", size: "2.4 GB", downloads: "610K+", rating: "4.9", desc: "Open-world action RPG.", trending: "" },
+      { id: "stardew-valley", title: "Stardew Valley", category: "Simulation", image: "https://i.ibb.co/pBPc4QHh/stardew-valley-icon.jpg", size: "1.2 GB", downloads: "830K+", rating: "4.8", desc: "Farming simulator RPG.", trending: "" },
+      { id: "fallout-4", title: "Fallout 4", category: "Action", image: "https://i.postimg.cc/T1K4Lg39/1435331352-4036-jaquette-avant.webp", size: "2.8 GB", downloads: "495K+", rating: "4.6", desc: "Post-apocalyptic open world.", trending: "" },
+      { id: "starfield", title: "Starfield", category: "Action", image: "https://i.postimg.cc/zXcqcFhz/1633350509-1567-jaquette-avant.webp", size: "2.3 GB", downloads: "365K+", rating: "4", desc: "Epic new action RPG.", trending: "" },
+      { id: "brawl-stars", title: "Brawl Stars", category: "Action", image: "https://i.postimg.cc/cLz6fNhH/icon.png", size: "0.9 GB", downloads: "870K+", rating: "4.5", desc: "Mobile action game.", trending: "" },
+      { id: "rainbow-six-siege", title: "Rainbow Six Siege", category: "Action", image: "https://i.postimg.cc/ht2Twwrf/unnamed.webp", size: "2.2 GB", downloads: "555K+", rating: "4.4", desc: "Tactical 5v5 FPS.", trending: "" },
+      { id: "cyberpunk-2077", title: "Cyberpunk 2077", category: "Action", image: "https://i.postimg.cc/15LKBbvP/OIP.jpg", size: "2.9 GB", downloads: "725K+", rating: "4.3", desc: "Open-world Night City.", trending: "⚡ MOD APK" },
+      { id: "gta-san-andreas", title: "GTA San Andreas", category: "Adventure", image: "https://i.postimg.cc/T2k6vsKS/grand-theft-auto-san-andreas-logo-by-gta-ivplayer-d62llos-fullview.webp", size: "2.6 GB", downloads: "640K+", rating: "4.9", desc: "Return to San Andreas.", trending: "⚡ MOD APK" },
+      { id: "hollow-knight-silksong", title: "Hollow Knight: Silksong", category: "Adventure", image: "https://i.postimg.cc/tTLrRDMX/hollow-knight-silksong-140x140.webp", size: "1.8 GB", downloads: "390K+", rating: "5", desc: "Play as Hornet.", trending: "" },
+      { id: "ets-2-mobile", title: "ETS 2 Mobile", category: "Simulation", image: "https://i.postimg.cc/Px5Ykhq7/ets-2-mobile-icon.avif", size: "2.0 GB", downloads: "770K+", rating: "4.6", desc: "Euro Truck Simulator mobile.", trending: "" },
+      { id: "wwe-2k25", title: "WWE 2K25", category: "Sports", image: "https://i.postimg.cc/d0RWmks3/wwe-2k25-netflix-edition-140x140.webp", size: "2.2 GB", downloads: "587K+", rating: "4.8", desc: "Step into the ring with WWE 2K25.", trending: "⚡ MOD APK" },
+      { id: "poppy-playtime-chapter-5", title: "Poppy Playtime Chapter 5", category: "Horror", image: "https://i.postimg.cc/tRvB5Hjt/poppy-playtime-chapter-5-fan-140x140.webp", size: "2.1 GB", downloads: "460K+", rating: "4.7", desc: "The terrifying conclusion.", trending: "⚡ MOD APK" },
+      { id: "inside-apk", title: "INSIDE APK", category: "Adventure", image: "https://i.postimg.cc/PxrMWSVS/INSIDE-GAME-FONT-140x140.webp", size: "1.2 GB", downloads: "680K+", rating: "4.9", desc: "Atmospheric puzzle-platformer.", trending: "" },
+      { id: "forza-horizon-5", title: "Forza Horizon 5", category: "Racing", image: "https://i.postimg.cc/W3Ffk8ny/forza-horizon-5-download-forza-horizon-5.avif", size: "2.7 GB", downloads: "815K+", rating: "4.9", desc: "Forza Horizon 5 open-world racing.", trending: "⚡ MOD APK" },
+      { id: "car-parking-multiplayer-2-mod", title: "Car Parking Multiplayer 2 MOD", category: "Simulation", image: "https://i.postimg.cc/Y0CL1kcm/5969665578786032910.jpg", size: "1.5 GB", downloads: "730K+", rating: "4.7", desc: "Car Parking Multiplayer 2 driving simulator.", trending: "⚡ MOD APK" },
+      { id: "tomodachi-life-live-the-dream", title: "Tomodachi Life: Live the Dream", category: "Simulation", image: "https://i.postimg.cc/44r4MRrr/80a81716-cbf1-40a6-acf8-2471d2df96e8.webp", size: "1.2 GB", downloads: "505K+", rating: "4.6", desc: "A warm life simulation experience.", trending: "" },
+      { id: "meccha-chameleon", title: "MECCHA CHAMELEON", category: "Action", image: "https://i.postimg.cc/zfmKy9sf/unnamed-(1).webp", size: "1.0 GB", downloads: "420K+", rating: "4.5", desc: "Action game of strategy and adaptation.", trending: "" },
+      { id: "custom-phone", title: "CUSTOM PHONE", category: "Simulation", image: "https://i.postimg.cc/MZ4TZy2Z/bd366edd22524307820e480ee7739e40.png", size: "0.5 GB", downloads: "850K+", rating: "4.3", desc: "Customize your phone with themes and wallpapers.", trending: "" },
+      { id: "free-fire-2018", title: "Free Fire 2018", category: "Action", image: "https://i.postimg.cc/J0myXks8/free-fire-2018-apk-icon.jpg", size: "1.0 GB", downloads: "795K+", rating: "4.5", desc: "Battle royale where 50 players fight to be the last standing.", trending: "⚡ MOD APK" },
+      { id: "pes-2021", title: "PES 2021", category: "Sports", image: "https://i.postimg.cc/KzZc8K9T/images-(3).jpg", size: "1.7 GB", downloads: "335K+", rating: "4.9", desc: "eFootball PES 2021 Season Update.", trending: "⚡ MOD APK" },
+      { id: "fc-27-mobile-beta", title: "FC 27 Mobile Beta", category: "Sports", image: "https://i.postimg.cc/RZzJgDCb/ea-sports-fc-mobile-beta-thumbnail-150x150-png.webp", size: "1.4 GB", downloads: "135K+", rating: "4.9", desc: "EA Sports FC Mobile Beta.", trending: "⚡ MOD APK" },
+      { id: "sherlock-mod", title: "Sherlock Mod", category: "Sports", image: "https://iili.io/CKS0L7I.webp", size: "0.9 GB", downloads: "155K+", rating: "4.9", desc: "Premium unlocked with unlimited searches.", trending: "⚡ MOD APK" },
+      { id: "gta-6", title: "GTA 6", category: "Action", image: "https://i.postimg.cc/43RRt1rM/wz297ymtii2c1-(1).png", size: "5 GB", downloads: "800K+", rating: "4.9", desc: "Explore a huge open city packed with missions, vehicles, action.", trending: "⚡ MOD APK" },
+      { id: "mimic-party-mobile", title: "Mimic Party Mobile", category: "Adventure", image: "https://i.postimg.cc/k5gQ62Kz/Duck-ai-image-2026-09-06-22-55.jpg", size: "1.3GB", downloads: "467K+", rating: "4.9", desc: "Fun and chaotic party game experience.", trending: "⚡ MOD APK" },
+      { id: "stick-war-legacy-mod", title: "Stick War: Legacy Mod", category: "Action", image: "https://i.postimg.cc/VLHZKqN0/images-(1)-(7).jpg", size: "0.9GB", downloads: "427K+", rating: "4.9", desc: "Stick War: Legacy (MOD, Unlimited Gems).", trending: "⚡ MOD APK" },
+      { id: "how-to-fich", title: "How To Fich", category: "Adventure", image: "https://i.ibb.co/fdBL9mX5/header.jpg", size: "0.7GB", downloads: "370K+", rating: "4.8", desc: "Simulateur de pêche pour 1 à 4 joueurs.", trending: "⚡ MOD APK" },
+      { id: "spintires-mudrunner", title: "Spintires: MudRunner", category: "Racing", image: "https://www.modxnet.com/uploads/game-1789395611169.png", size: "0.7GB", downloads: "311K+", rating: "4.9", desc: "Ultimate Off-Road Experience.", trending: "⚡ MOD APK" },
+      { id: "banner-tutorial", title: "BANNER TUTORIAL", category: "Tutorial", image: "https://i.ibb.co/Wpcc8Q3b/Neon-Tik-Tok-Banner-Tutorial-Badge.png", size: "50 MB", downloads: "120K+", rating: "5", desc: "Step-by-step tutorial to create stunning neon TikTok banners.", trending: "" },
+      { id: "overpeak-mod-apk", title: "OverPeak MOD APK", category: "Action", image: "https://apkvision.org/wp-content/uploads/2026/05/overpeak-action-game-140x140.png", size: "3.4GB", downloads: "411K+", rating: "4.8", desc: "MOD: Unlimited Money/Unlocked + MOD Menu", trending: "⚡ MOD APK" },
+      { id: "sifu-apk", title: "Sifu APK", category: "Action", image: "https://apkvision.org/wp-content/uploads/2026/10/sifu-140x140.png", size: "1.27GB", downloads: "834K+", rating: "4.9", desc: "Sifu invites players to embark on a journey of revenge.", trending: "⚡ MOD APK" },
+      { id: "tiktok-pro", title: "Tiktok Pro", category: "Social", image: "https://i.postimg.cc/Vs7psJ0N/32a27eeceb0dcf963a274b088a4d2531-tplv-tiktokx-cropcenter-720-720.webp", size: "104 Mo", downloads: "539K+", rating: "4.9", desc: "Always use the latest version.", trending: "⚡ MOD APK" },
+      { id: "spider-fuser", title: "Spider Fuser", category: "Action", image: "https://i.postimg.cc/kG3pzpjj/spider-fuser-140x140.webp", size: "1.3 Go", downloads: "633K+", rating: "4.9", desc: "Spider Fuser is a high-energy open-world action game.", trending: "⚡ MOD APK" },
+      { id: "poppy-playtime-chapter-6", title: "Poppy Playtime Chapter 6", category: "Horror", image: "https://apkvision.org/wp-content/uploads/2026/06/poppy-playtime-chapter-6-140x140.png", size: "1.8 Go", downloads: "100K+", rating: "5", desc: "Poppy Playtime Chapter 6 is an official horror adventure.", trending: "" },
+      { id: "efootball-2027-mod", title: "eFootball 2027 Mod", category: "Sports", image: "https://an1.com/uploads/posts/2026-08/1786605649_efootball.png", size: "2Go", downloads: "87K+", rating: "5", desc: "The player development system offers flexible customization options.", trending: "⚡ MOD APK" },
+      { id: "kipas-football-2027", title: "Kipas Football 2027", category: "Sports", image: "https://i.postimg.cc/KjNcxFS2/Gemini-Generated-Image-2mft5n2mft5n2mft.png", size: "2 Go", downloads: "53K+", rating: "4.4", desc: "Next-gen arcade mobile football with realistic animations.", trending: "⚡ MOD APK" },
+      { id: "minecraft-legacy-console-edition-apk", title: "Minecraft: Legacy Console Edition APK", category: "Adventure", image: "https://apkvision.org/wp-content/uploads/2026/11/68427-140x140.jpg", size: "1.35 Go", downloads: "73K+", rating: "4.8", desc: "Minecraft: Legacy Console Edition is a classic version of the iconic sandbox game.", trending: "⚡ MOD APK" }
+    ];
+
+    // =========================================
+    // RENDER FUNCTIONS
+    // =========================================
+    const gameGrid = document.getElementById("gameGrid");
+    const featuredGrid = document.getElementById("featuredGrid");
+    const trendingList = document.getElementById("trendingList");
+    const filterButtons = document.getElementById("filterButtons");
+
+    function createGameCard(game) {
+      return `
+        <div class="game-card">
+          <div class="card-img-wrap">
+            <a href="game.html?id=${game.id}">
+              <img src="${game.image}" alt="${game.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x180?text=No+Image'">
+            </a>
+            ${game.trending ? `<span class="badge-trending">${game.trending}</span>` : ''}
+            <span class="badge-size">${game.size}</span>
+          </div>
+          <div class="card-body">
+            <span class="card-category">${game.category}</span>
+            <h3 class="card-title">${game.title}</h3>
+            <p class="card-desc">${game.desc}</p>
+            <div class="card-footer">
+              <span class="card-downloads">⬇ ${game.downloads}</span>
+              <a href="game.html?id=${game.id}" class="btn-sm">Download</a>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderGames(filter = "all") {
+      if (!gameGrid) return;
+      const filtered = filter === "all" 
+        ? gamesData 
+        : gamesData.filter(g => {
+            if (filter === "mod") return g.trending.includes("MOD");
+            return g.category.toLowerCase() === filter;
+          });
+      gameGrid.innerHTML = filtered.map(createGameCard).join("");
+    }
+
+    function renderFeatured() {
+      if (!featuredGrid) return;
+      featuredGrid.innerHTML = gamesData.slice(0, 4).map(createGameCard).join("");
+    }
+
+    function renderTrending() {
+      if (!trendingList) return;
+      trendingList.innerHTML = gamesData.slice(0, 10).map((game, i) => `
+        <div class="trending-row">
+          <span class="rank">${i + 1}</span>
+          <img class="trending-img" src="${game.image}" alt="${game.title}" loading="lazy">
+          <div class="trending-info">
+            <a href="game.html?id=${game.id}"><h3 class="trending-title">${game.title}</h3></a>
+            <div class="trending-meta">
+              <span>${game.category}</span>
+              <span>⭐ ${game.rating}</span>
+              <span>⬇ ${game.downloads}</span>
+            </div>
+          </div>
+          <a href="game.html?id=${game.id}" class="btn-sm">Download</a>
+        </div>
+      `).join("");
+    }
+
+    // =========================================
+    // FILTER LOGIC
+    // =========================================
+    if (filterButtons) {
+      filterButtons.addEventListener("click", (e) => {
+        const btn = e.target.closest(".filter-btn");
+        if (!btn) return;
+        filterButtons.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderGames(btn.dataset.cat);
+      });
+    }
+
+    // =========================================
+    // NEWSLETTER
+    // =========================================
+    const newsletterForm = document.getElementById("newsletterForm");
+    if (newsletterForm) {
+      newsletterForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        alert("Thank you for subscribing!");
+        newsletterForm.reset();
+      });
+    }
+
+    // =========================================
+    // INIT
+    // =========================================
+    renderGames();
+    renderFeatured();
+    renderTrending();
+  </script>
+</body>
+</html>
