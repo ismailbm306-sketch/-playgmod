@@ -421,19 +421,15 @@ function safeOfferUrl(url) {
   return '';
 }
 
-function loadLockerFeed(url, onSuccess, onError) {
-  var cbName = 'g2LockerCb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-  var script = document.createElement('script');
-  var done = false;
-
-  function finish(fn, arg) {
-    if (done) return;
-    done = true;
-    clearTimeout(timer);
-    try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
-    if (script.parentNode) script.parentNode.removeChild(script);
-    fn(arg);
-  }
+function loadLockerFeed(onSuccess, onError) {
+  fetch('/.netlify/functions/offers')
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.offers) onSuccess(data.offers);
+      else onError();
+    })
+    .catch(() => onError());
+}
 
   var timer = setTimeout(function () { finish(onError); }, 12000);
   window[cbName] = function (data) { finish(onSuccess, data); };
