@@ -30,7 +30,6 @@ function esc(s) {
   return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-/* Fallback image generator for high resilience */
 function createGameAvatar(title, category) {
   const initials = (title || 'G2')
     .split(' ')
@@ -82,7 +81,7 @@ function navbar(isHome) {
       '<div class="navbar-inner">' +
         '<a class="navbar-logo" href="' + homeHref + '">' +
           '<span class="logo-icon icon-xl text-primary">' + ICONS.gamepad + '</span>' +
-         '<span class="navbar-title neon-text"PLAYMOD</span>'+
+          '<span class="navbar-title neon-text">PLAYMOD</span>' +
         '</a>' +
         '<nav class="nav-links">' + links + '</nav>' +
         '<div class="navbar-actions">' +
@@ -96,15 +95,6 @@ function navbar(isHome) {
   '</header>';
 }
 
-/* ----------------------------------------------------------------
-   Banner zones. Script host is bellnewyork.org.
-     728×90   Leaderboard
-     468×60   Banner
-     320×50   Mobile banner
-     300×250  Medium rectangle
-     160×300  Skyscraper
-     160×600  Wide skyscraper
-   ---------------------------------------------------------------- */
 const AD_SCRIPT_HOST = 'https://bellnewyork.org/22/';
 const AD_KEYS = {
   '728x90':  { key: '120cff8af1e7b997b08834cc11e14d0a', height: 90,  width: 728 },
@@ -130,54 +120,14 @@ function adSlot(size, extraClass) {
 
   const w = cfg.width  ? cfg.width  + 'px' : '100%';
   const h = cfg.height ? cfg.height + 'px' : '90px';
-  const placeholderH = (cfg.height && cfg.height < 72 ? 72 : (cfg.height || 90)) + 'px';
 
-  /* If a real key is set, inject the actual ad script */
   if (cfg.key) {
     return '<div class="ad-slot ' + (extraClass || '') + '" data-ad="' + size + '">' +
       '<div class="ad-box" style="width:' + w + ';height:' + h + ';max-width:100%;"></div>' +
     '</div>';
   }
 
-  /* Visible placeholder — clearly shows placement & size */
-  return '<div class="ad-slot ad-placeholder ' + (extraClass || '') + '" data-ad="' + size + '" style="display:flex;justify-content:center;align-items:center;padding:6px 0;">' +
-    '<div class="ad-placeholder-box" style="' +
-      'width:' + w + ';' +
-      'max-width:100%;' +
-      'height:' + placeholderH + ';' +
-      'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;' +
-      'background:linear-gradient(135deg,rgba(108,92,231,0.08),rgba(0,242,254,0.05));' +
-      'border:1.5px dashed rgba(108,92,231,0.4);' +
-      'border-radius:10px;' +
-      'position:relative;overflow:hidden;' +
-      'transition:border-color 0.2s,box-shadow 0.2s;' +
-    '">' +
-      /* Corner label */
-      '<span style="' +
-        'position:absolute;top:6px;left:8px;' +
-        'font-size:0.6rem;font-weight:700;letter-spacing:0.5px;' +
-        'color:rgba(108,92,231,0.6);text-transform:uppercase;' +
-      '">Adsterra zone</span>' +
-      /* Icon */
-      '<span style="font-size:' + (cfg.height >= 200 ? '1.6' : '1.1') + 'rem;line-height:1;">' + label.icon + '</span>' +
-      /* Name */
-      '<span style="' +
-        'font-size:' + (cfg.height >= 60 ? '0.78' : '0.65') + 'rem;' +
-        'font-weight:700;color:rgba(255,255,255,0.7);font-family:Orbitron,sans-serif;letter-spacing:0.5px;text-align:center;padding:0 8px;' +
-      '">' + label.name + '</span>' +
-      /* Dimensions */
-      (cfg.height >= 50
-        ? '<span style="font-size:0.65rem;color:rgba(255,255,255,0.3);font-family:JetBrains Mono,monospace;">' + label.desc + '</span>'
-        : '') +
-      '<span style="font-size:0.6rem;color:rgba(0,242,254,0.55);">Paste zone key</span>' +
-      /* Shimmer overlay */
-      '<div style="' +
-        'position:absolute;inset:0;' +
-        'background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.03) 50%,transparent 100%);' +
-        'pointer-events:none;' +
-      '"></div>' +
-    '</div>' +
-  '</div>';
+  return '<div class="ad-slot ad-placeholder ' + (extraClass || '') + '" data-ad="' + size + '"></div>';
 }
 
 var adInjectQueue = [];
@@ -255,7 +205,7 @@ function footer(isHome) {
         '<div>' +
           '<a class="navbar-logo mb-4" href="' + homeHref + '">' +
             '<span class="icon-xl text-primary">' + ICONS.gamepad + '</span>' +
-            '<span class="navbar-title">playgmod</span>' +
+            '<span class="navbar-title">PLAYMOD</span>' +
           '</a>' +
           '<p class="text-sm text-muted-foreground leading-relaxed">Your ultimate destination for verified premium MOD APKs, unlocked games, and high-speed downloads for iOS &amp; Android.</p>' +
         '</div>' +
@@ -288,7 +238,7 @@ function footer(isHome) {
         '</div>' +
       '</div>' +
       '<div class="footer-bottom">' +
-        '<p class="footer-note">&copy; 2026 playgmod. All rights reserved. High-speed mobile gaming mirrors.</p>' +
+        '<p class="footer-note">&copy; 2026 PLAYMOD. All rights reserved. High-speed mobile gaming mirrors.</p>' +
       '</div>' +
     '</div>' +
   '</footer>';
@@ -407,12 +357,9 @@ function initNewsletter() {
 }
 
 /* ================================================================
-   Offer locker (same feed API as the G2VIP index) & download pipeline
+   Offer locker & download pipeline
    ================================================================ */
 
-var LOCKER_API = 'https://apptrck.net/api/v2';
-var LOCKER_USER_ID = '296794';
-var LOCKER_API_KEY = '49710|nwRmqU8CrW4DhvCtnI1rfIlhjEcuIPG0Y2DBdEoQbe03a087';
 function safeOfferUrl(url) {
   try {
     var parsed = new URL(url, window.location.href);
@@ -429,13 +376,6 @@ function loadLockerFeed(onSuccess, onError) {
       else onError();
     })
     .catch(() => onError());
-}
-
-  var timer = setTimeout(function () { finish(onError); }, 12000);
-  window[cbName] = function (data) { finish(onSuccess, data); };
-  script.onerror = function () { finish(onError); };
-  script.src = url.replace('callback=?', 'callback=' + cbName);
-  document.body.appendChild(script);
 }
 
 function closeOfferLocker() {
@@ -461,7 +401,7 @@ function openOfferLocker(options) {
         (image
           ? '<img class="locker-game-icon" src="' + esc(image) + '" alt="' + esc(title) + '">'
           : '<div class="locker-game-icon locker-game-fallback">' + ICONS.gamepad + '</div>') +
-        '<div class="locker-logo">G2<span>APK</span></div>' +
+        '<div class="locker-logo">PLAY<span>MOD</span></div>' +
         '<div class="locker-title">Unlock <em>' + esc(title) + '</em></div>' +
         '<div class="locker-sub">Complete any offer below to start your ' + esc(platform) + ' download</div>' +
         '<div class="locker-progress">' +
@@ -493,14 +433,7 @@ function openOfferLocker(options) {
   locker.querySelector('#lockerCloseBtn').addEventListener('click', closeOfferLocker);
   injectAds();
 
-  var feedUrl = LOCKER_API +
-    '?user_id=' + encodeURIComponent(LOCKER_USER_ID) +
-    '&api_key=' + encodeURIComponent(LOCKER_API_KEY) +
-    '&s1=' + encodeURIComponent(title) +
-    '&s2=' + encodeURIComponent(platform) +
-    '&callback=?';
-
-  loadLockerFeed(feedUrl, function (offers) {
+  loadLockerFeed(function (offers) {
     var container = document.getElementById('lockerOffersContainer');
     if (!container) return;
     if (!offers || !offers.length) {
@@ -512,13 +445,13 @@ function openOfferLocker(options) {
     var html = '<div class="locker-offers">';
     html += '<div class="locker-offers-label">Complete any one offer to unlock</div>';
     list.forEach(function (offer) {
-      var href = safeOfferUrl(offer.url);
+      var href = safeOfferUrl(offer.link || offer.url);
       if (!href) return;
       html += '<a class="locker-offer" href="' + esc(href) + '" target="_blank" rel="noopener noreferrer">';
       html += '<div class="locker-offer-icon">' + ICONS.download + '</div>';
       html += '<div class="locker-offer-info">';
-      html += '<div class="locker-offer-name">' + esc(offer.anchor || 'Complete offer') + '</div>';
-      html += '<div class="locker-offer-conversion">' + esc(offer.conversion || 'Complete and unlock') + '</div>';
+      html += '<div class="locker-offer-name">' + esc(offer.name || 'Complete offer') + '</div>';
+      html += '<div class="locker-offer-conversion">' + esc(offer.adcopy || 'Complete and unlock') + '</div>';
       html += '</div>';
       html += '<div class="locker-offer-arrow">' + ICONS.chevronRight + '</div>';
       html += '</a>';
@@ -623,7 +556,7 @@ function startDownloadPipeline(options) {
   const actionWrap = overlay.querySelector('#dlActionWrap');
 
   let currentPercent = 1;
-  const intervalMs = 28; // ~2.8s smooth count from 1% to 100%
+  const intervalMs = 28;
 
   const timer = setInterval(function () {
     currentPercent += 1;
@@ -688,10 +621,6 @@ function renderPlatformButtons(game) {
   '</div>';
 }
 
-/* ================================================================
-   Home Page
-   ================================================================ */
-
 function renderHome() {
   const root = document.getElementById('root');
   const trending = GAMES_WITH_IMAGES.filter(function (g) { return g.trending; }).slice(0, 10);
@@ -742,7 +671,6 @@ function renderHome() {
       '</div>' +
     '</section>' +
 
-    /* ── BANNER 2: Below hero (Leaderboard / Mobile) ── */
     '<div class="py-4 flex justify-center" style="background:rgba(108,92,231,0.04); border-top:1px solid rgba(108,92,231,0.12); border-bottom:1px solid rgba(108,92,231,0.12);">' +
       adSlot('728x90', 'ad-desktop') +
       adSlot('320x50', 'ad-mobile') +
@@ -755,16 +683,11 @@ function renderHome() {
           '<p class="text-muted-foreground text-sm mt-2">Filter all ' + GAMES_WITH_IMAGES.length + ' games and find your next adventure</p>' +
         '</div>' +
         '<div class="flex flex-wrap justify-center gap-2 mb-10" id="filterButtons"></div>' +
-
-        /* ── BANNER 4: Above game grid (Leaderboard / Mobile) ── */
         '<div class="mb-8 flex justify-center">' +
           adSlot('728x90', 'ad-desktop') +
           adSlot('320x50', 'ad-mobile') +
         '</div>' +
-
         '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="gameGrid"></div>' +
-
-        /* ── BANNER 5: Below game grid ── */
         '<div class="mt-8 flex justify-center">' +
           adSlot('728x90', 'ad-desktop') +
           adSlot('320x50', 'ad-mobile') +
@@ -772,7 +695,6 @@ function renderHome() {
       '</div>' +
     '</section>' +
 
-    /* ── Banner between the game list and Featured ── */
     '<div class="py-4 flex justify-center">' +
       adSlot('468x60', 'ad-sm') +
       adSlot('320x50', 'ad-mobile-sm') +
@@ -800,15 +722,11 @@ function renderHome() {
               '<h2 class="text-2xl font-bold"><span class="neon-text-orange">Top</span> Downloads</h2>' +
             '</div>' +
             '<div class="space-y-4">' + trendingRows + '</div>' +
-
-            /* ── BANNER 6: Below trending list (Half Banner / Mobile) ── */
             '<div class="mt-8 flex justify-center">' +
               adSlot('468x60', 'ad-sm') +
               adSlot('320x50', 'ad-mobile-sm') +
             '</div>' +
           '</div>' +
-
-          /* ── Sidebar: 300×250, 160×300, 160×600 ── */
           '<div class="space-y-6">' +
             adSlot('300x250') +
             adSlot('160x300') +
@@ -820,7 +738,6 @@ function renderHome() {
 
     newsletter() +
 
-    /* ── BANNER 9: Pre-footer (Leaderboard / Mobile) ── */
     '<div class="py-5 flex justify-center border-t border-border/30" style="background:rgba(108,92,231,0.03);">' +
       adSlot('728x90', 'ad-desktop') +
       adSlot('320x50', 'ad-mobile') +
@@ -896,10 +813,6 @@ function initFilters() {
   render();
 }
 
-/* ================================================================
-   Game Detail Page
-   ================================================================ */
-
 function renderDetail() {
   const root = document.getElementById('root');
   const params = new URLSearchParams(window.location.search);
@@ -919,7 +832,7 @@ function renderDetail() {
     return;
   }
 
-  document.title = game.title + ' — Download for iOS & Android (playgmod)';
+  document.title = game.title + ' — Download for iOS & Android (PLAYMOD)';
 
   let related = GAMES_WITH_IMAGES.filter(function (g) {
     return g.category === game.category && g.id !== game.id;
@@ -953,7 +866,6 @@ function renderDetail() {
   root.innerHTML =
     navbar(false) +
 
-    /* ── BANNER 1: Below navbar, above banner image (Leaderboard / Mobile) ── */
     '<div class="py-3 flex justify-center" style="background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(108,92,231,0.15);">' +
       adSlot('728x90', 'ad-desktop') +
       adSlot('320x50', 'ad-mobile') +
@@ -990,7 +902,6 @@ function renderDetail() {
               '</div>' +
             '</div>' +
 
-            /* ── BANNER 2: Below download buttons (Half Banner / Mobile) ── */
             '<div class="my-6 flex justify-center">' +
               adSlot('468x60', 'ad-sm') +
               adSlot('320x50', 'ad-mobile-sm') +
@@ -1003,7 +914,6 @@ function renderDetail() {
               '<ul class="feature-list space-y-2">' + featureItems + '</ul>' +
             '</div>' +
 
-            /* ── BANNER 3: Between About & System Requirements (Leaderboard / Mobile) ── */
             '<div class="my-6 flex justify-center">' +
               adSlot('728x90', 'ad-desktop') +
               adSlot('320x50', 'ad-mobile') +
@@ -1014,7 +924,6 @@ function renderDetail() {
               '<div class="space-y-3">' + reqRows + '</div>' +
             '</div>' +
 
-            /* ── BANNER 4: Between Requirements & CTA (Half Banner / Mobile) ── */
             '<div class="my-6 flex justify-center">' +
               adSlot('468x60', 'ad-sm') +
               adSlot('320x50', 'ad-mobile-sm') +
@@ -1031,9 +940,7 @@ function renderDetail() {
             '</div>' +
           '</div>' +
 
-          /* Right sidebar */
           '<div class="space-y-6">' +
-            /* ── BANNER 5: Sidebar top (Medium Rectangle) ── */
             adSlot('300x250') +
             '<div class="rounded-xl bg-card border border-border/50 p-4">' +
               '<h3 class="text-sm font-bold uppercase tracking-wider mb-3" style="font-family:Orbitron,sans-serif">Quick Info</h3>' +
@@ -1047,15 +954,12 @@ function renderDetail() {
                 '<div class="flex justify-between"><span class="text-muted-foreground">Platforms</span><span class="font-medium">iOS (.IPA) / Android (.APK)</span></div>' +
               '</div>' +
             '</div>' +
-            /* ── Sidebar mid: 300×250 and 160×300 ── */
             adSlot('300x250') +
             adSlot('160x300') +
-            /* ── Sidebar tall: 160×600 wide skyscraper ── */
             adSlot('160x600') +
           '</div>' +
         '</div>' +
 
-        /* ── BANNER 8: Above Related Games (Leaderboard / Mobile) ── */
         '<div class="pt-8 pb-4 flex justify-center border-t border-border/20">' +
           adSlot('728x90', 'ad-desktop') +
           adSlot('320x50', 'ad-mobile') +
@@ -1064,8 +968,6 @@ function renderDetail() {
         '<section id="related" class="pb-16">' +
           '<h2 class="text-xl font-bold mb-6">More <span class="neon-text-cyan">Games</span> You\'ll Love</h2>' +
           '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">' + relatedCards + '</div>' +
-
-          /* ── BANNER 9: Below Related Games (Leaderboard / Mobile) ── */
           '<div class="mt-8 flex justify-center">' +
             adSlot('728x90', 'ad-desktop') +
             adSlot('320x50', 'ad-mobile') +
@@ -1078,10 +980,6 @@ function renderDetail() {
   initNavbar();
   injectAds();
 }
-
-/* ================================================================
-   Legal Pages
-   ================================================================ */
 
 const LEGAL_CONTENT = {
   privacy: {
@@ -1227,10 +1125,6 @@ function initContactForm() {
     '</div>';
   });
 }
-
-/* ================================================================
-   Application Boot
-   ================================================================ */
 
 document.addEventListener('DOMContentLoaded', function () {
   initDownloadButtons();
