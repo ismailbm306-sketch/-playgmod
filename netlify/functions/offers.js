@@ -6,7 +6,8 @@ exports.handler = async (event, context) => {
   const API_KEY = '49764|PNVaRLI3kwP3rpVfBmOe0bFYwHx0OpFXMLBAFgSZ76ce3967';
   const API_URL = 'https://appcomplete.org/api/v2';
 
-  const ip = event.headers['x-forwarded-for'] || '1.1.1.1';
+  const forwarded = event.headers['x-forwarded-for'] || '';
+  const ip = forwarded.split(',')[0].trim() || '1.1.1.1';
   const userAgent = event.headers['user-agent'] || 'Mozilla/5.0';
   const lang = event.headers['accept-language'] || 'en';
   const site = event.headers['referer'] || 'https://modply.netlify.app';
