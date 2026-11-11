@@ -97,12 +97,12 @@ function navbar(isHome) {
 
 const AD_SCRIPT_HOST = 'https://bellnewyork.org/22/';
 const AD_KEYS = {
-  '728x90':  { key: '120cff8af1e7b997b08834cc11e14d0a', height: 90,  width: 728 },
-  '468x60':  { key: '5791a985e8341d50cc322024c737a68c', height: 60,  width: 468 },
-  '320x50':  { key: '86efad0f0b0cb0575d641e5b3c5eea6a', height: 50,  width: 320 },
-  '300x250': { key: 'b15ca5a5d1de28583ead0c85cdb02a35', height: 250, width: 300 },
-  '160x300': { key: '1eebc8ca8c2f16c82040f660c3028ab5', height: 300, width: 160 },
-  '160x600': { key: 'd612065c968a59ffcd4dbc21105676a4', height: 600, width: 160 }
+  '728x90':  { key: 'ff47676634495a086d4c3167da90024d', height: 90,  width: 728 },
+  '468x60':  { key: '8c4705741e753f64860f7f08ee5a4f28', height: 60,  width: 468 },
+  '320x50':  { key: '3b426df17d146ba4b7dfa3d2103adc6c', height: 50,  width: 320 },
+  '300x250': { key: '25b4b0bcf72dcc4283cbecc2d95f4ab5', height: 250, width: 300 },
+  '160x300': { key: 'aebcd6c41f96bb692988f6530c28f9be', height: 300, width: 160 },
+  '160x600': { key: '45245c6e9db527c6d1e98b9ecfecb6f2', height: 600, width: 160 }
 };
 
 const AD_LABELS = {
