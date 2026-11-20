@@ -14,66 +14,59 @@ exports.handler = async (event, context) => {
 
   const url = `${API_URL}?ip=${encodeURIComponent(ip)}&user_agent=${encodeURIComponent(userAgent)}&lang=${encodeURIComponent(lang)}&site=${encodeURIComponent(site)}&ctype=1`;
 
-  console.log('URL:', url);
-
   try {
     const response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${API_KEY}`
-      }
+      headers: { 'Authorization': `Bearer ${API_KEY}` }
     });
-    console.log('Response status:', response.status);
-    
     const data = await response.json();
-    console.log('OGAds response:', JSON.stringify(data));
-
-    // 1. استخراج العروض (تأكد من الشكل الصحيح للـ API)
-    // غالباً كيكون data.offers أو data.data أو data مباشرة
+    
+    // 1. كنعرفو فين كاينة الداتا بالضبط (offers ولا data ولا هي هي)
     let offers = data.offers || data.data || (Array.isArray(data) ? data : []);
 
-    // 2. التعديل: زيد aff_sub4 على كل رابط عرض
-    const modifiedOffers = offers.map(offer => {
-      // تحقق واش الرابط كاين
-      const link = offer.tracking_link || offer.link || offer.url;
-      if (!link) return offer;
+    // 2. كنعدلو العروض باحتياط كبير
+    if (Array.isArray(offers)) {
+      offers = offers.map(offer => {
+        // كنقلبو على الرابط بأي اسم من هاد الأسماء
+        const link = offer.tracking_link || offer.link || offer.url || offer.offer_url;
+        
+        if (link && typeof link === 'string') {
+          const uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
+          const separator = link.includes('?') ? '&' : '?';
+          const newLink = `${link}${separator}aff_sub4=${uniqueId}`;
+          
+          return {
+            ...offer,
+            tracking_link: newLink,
+            link: newLink,
+            url: newLink,
+            offer_url: newLink
+          };
+        }
+        return offer;
+      });
+    }
 
-      // صنع ID وحيد لكل نقرة (يمكنك تبدلو بـ UUID إلا بغيتي)
-      const uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
-      
-      // زيد aff_sub4 مع مراعاة واش الرابط فيه ? ولا لا
-      const separator = link.includes('?') ? '&' : '?';
-      const newLink = `${link}${separator}aff_sub4=${uniqueId}`;
+    // 3. نرجعو نفس الشكل اللي كان كيرجع بيه الـ API فـ الأول
+    // إلا كان data فيه offers، نرجعو data.offers، إلا كان Array نرجعو Array
+    const finalResponse = (data && data.offers) 
+        ? { ...data, offers: offers } 
+        : offers;
 
-      return {
-        ...offer,
-        // عوض الرابط القديم بالجديد (حافظ على نفس اسم الحقل اللي كيستعملو الـ Frontend)
-        tracking_link: newLink, 
-        // إلا كان الـ Frontend كيستعمل link أو url، زيدهم هنا تاني
-        link: newLink,
-        url: newLink
-      };
-    });
-
-    // 3. إرجاع النتيجة المعدلة
     return {
       statusCode: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json'
       },
-      // هنا كنرجعو modifiedOffers ماشي data الأصلي
-      body: JSON.stringify(modifiedOffers) 
+      body: JSON.stringify(finalResponse) 
     };
 
   } catch (error) {
     console.log('Error:', error.message);
     return {
       statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
-     body: JSON.stringify({ success: true, offers: modifiedOffers })
+      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Could not load offers' })
     };
   }
 };
