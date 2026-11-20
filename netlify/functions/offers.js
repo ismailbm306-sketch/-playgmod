@@ -73,7 +73,7 @@ exports.handler = async (event, context) => {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ error: 'Could not load offers' })
+      body: JSON.stringify({ offers: modifiedOffers })
     };
   }
 };
