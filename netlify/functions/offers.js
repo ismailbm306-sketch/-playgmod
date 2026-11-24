@@ -1,72 +1,100 @@
+'use strict';
+
 const fetch = require('node-fetch');
+const { randomBytes } = require('crypto');
+const { isIP } = require('net');
+const API_URL = 'https://appcomplete.org/api/v2';
 
-exports.handler = async (event, context) => {
-  console.log('Function started');
-  
-  const API_KEY = '49764|PNVaRLI3kwP3rpVfBmOe0bFYwHx0OpFXMLBAFgSZ76ce3967';
-  const API_URL = 'https://appcomplete.org/api/v2';
+function reply(statusCode, data, extraHeaders = {}) {
+  return {
+    statusCode,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'private, no-store',
+      'X-Content-Type-Options': 'nosniff',
+      ...extraHeaders
+    },
+    body: JSON.stringify(data)
+  };
+}
 
-  const forwarded = event.headers['x-forwarded-for'] || '';
-  const ip = forwarded.split(',')[0].trim() || '1.1.1.1';
-  const userAgent = event.headers['user-agent'] || 'Mozilla/5.0';
-  const lang = event.headers['accept-language'] || 'en';
-  const site = event.headers['referer'] || 'https://modply.netlify.app';
+function validOfferLink(value) {
+  if (typeof value !== 'string') return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' || url.protocol === 'http:';
+  } catch (_) {
+    return false;
+  }
+}
 
-  const url = `${API_URL}?ip=${encodeURIComponent(ip)}&user_agent=${encodeURIComponent(userAgent)}&lang=${encodeURIComponent(lang)}&site=${encodeURIComponent(site)}&ctype=1`;
+exports.handler = async (event) => {
+  if (event.httpMethod !== 'GET') {
+    return reply(405, { error: 'Method not allowed' }, { Allow: 'GET' });
+  }
+
+  const apiKey = (process.env.OGADS_API_KEY || '').trim();
+  if (!apiKey) {
+    console.error('OGAds API key is not configured');
+    return reply(503, { error: 'Offers temporarily unavailable' });
+  }
+
+  const headers = Object.fromEntries(
+    Object.entries(event.headers || {}).map(([key, value]) => [key.toLowerCase(), value])
+  );
+  // Use the connecting IP supplied by Netlify; never invent an IP.
+  const ip = String(headers['x-nf-client-connection-ip'] || '').trim();
+  const userAgent = String(headers['user-agent'] || '').trim();
+  if (!isIP(ip) || !userAgent) {
+    return reply(400, { error: 'Missing valid visitor IP or user agent' });
+  }
+
+  const lang = headers['accept-language'] || 'en';
+  const site = process.env.URL || 'https://modply.netlify.app';
+  // One opaque request ID, not a conversion or proof of completion.
+  // OGAds supports aff_sub4 as an Offer API query parameter.
+  const trackingId = randomBytes(16).toString('hex');
+  const url = new URL(API_URL);
+  url.search = new URLSearchParams({
+    ip, user_agent: userAgent, lang, site, ctype: '1', aff_sub4: trackingId
+  }).toString();
 
   try {
-    const response = await fetch(url, {
-      headers: { 'Authorization': `Bearer ${API_KEY}` }
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${apiKey}`, Accept: 'application/json' },
+      timeout: 8000,
+      redirect: 'error'
     });
-    const data = await response.json();
-    
-    // 1. كنعرفو فين كاينة الداتا بالضبط (offers ولا data ولا هي هي)
-    let offers = data.offers || data.data || (Array.isArray(data) ? data : []);
-
-    // 2. كنعدلو العروض باحتياط كبير
-    if (Array.isArray(offers)) {
-      offers = offers.map(offer => {
-        // كنقلبو على الرابط بأي اسم من هاد الأسماء
-        const link = offer.tracking_link || offer.link || offer.url || offer.offer_url;
-        
-        if (link && typeof link === 'string') {
-          const uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
-          const separator = link.includes('?') ? '&' : '?';
-          const newLink = `${link}${separator}aff_sub4=${uniqueId}`;
-          
-          return {
-            ...offer,
-            tracking_link: newLink,
-            link: newLink,
-            url: newLink,
-            offer_url: newLink
-          };
-        }
-        return offer;
-      });
+    if (!response.ok) {
+      console.error('OGAds upstream HTTP status:', response.status);
+      return reply(502, { error: 'Could not load offers' });
     }
-
-    // 3. نرجعو نفس الشكل اللي كان كيرجع بيه الـ API فـ الأول
-    // إلا كان data فيه offers، نرجعو data.offers، إلا كان Array نرجعو Array
-    const finalResponse = (data && data.offers) 
-        ? { ...data, offers: offers } 
-        : offers;
-
-    return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(finalResponse) 
-    };
-
+    const data = await response.json();
+    if (data && data.success === false) {
+      console.error('OGAds reported an unsuccessful request');
+      return reply(502, { error: 'Could not load offers' });
+    }
+    const raw = Array.isArray(data) ? data
+      : Array.isArray(data?.offers) ? data.offers
+      : Array.isArray(data?.data) ? data.data : null;
+    if (!raw) {
+      console.error('Unexpected OGAds response shape');
+      return reply(502, { error: 'Could not load offers' });
+    }
+    // Keep provider order and tracking URL bytes unchanged.
+    // Provide link/url aliases for the existing app.js renderer.
+    const offers = raw.flatMap(offer => {
+      if (!offer || typeof offer !== 'object' || Array.isArray(offer)) return [];
+      const link = [offer.tracking_link, offer.link, offer.url, offer.offer_url]
+        .find(validOfferLink);
+      if (!link) return [];
+      return [{ ...offer, tracking_link: link, link, url: link, offer_url: link }];
+    });
+    return reply(200, { offers });
   } catch (error) {
-    console.log('Error:', error.message);
-    return {
-      statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Could not load offers' })
-    };
+    // Do not log the URL, authorization token, or visitor IP.
+    console.error('OGAds request failed:', error.type || error.name || 'Error');
+    return reply(502, { error: 'Could not load offers' });
   }
 };
