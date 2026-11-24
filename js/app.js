@@ -377,6 +377,28 @@ function detectDevicePlatform() {
   return 'Desktop / other';
 }
 
+function rankLockerOffers(offers) {
+  function flag(value) {
+    return value === true || value === 1 || value === '1' ||
+      (typeof value === 'string' && value.trim().toLowerCase() === 'true');
+  }
+  function epc(value) {
+    if ((typeof value !== 'number' && typeof value !== 'string') || String(value).trim() === '') return -1;
+    const n = Number(value);
+    return Number.isFinite(n) && n >= 0 ? n : -1;
+  }
+  return offers.map(function (offer, index) {
+    return { offer: offer, index: index };
+  }).filter(function (item) {
+    const o = item.offer;
+    return o && !flag(o.disabled) && String(o.status || '').trim().toLowerCase() !== 'disabled' &&
+      safeOfferUrl(o.link || o.tracking_link || o.url || o.offer_url);
+  }).sort(function (a, b) {
+    return Number(flag(b.offer.boosted)) - Number(flag(a.offer.boosted)) ||
+      epc(b.offer.epc) - epc(a.offer.epc) || a.index - b.index;
+  }).slice(0, 4).map(function (item) { return item.offer; });
+}
+
 function loadLockerFeed(onSuccess, onError) {
   fetch('/.netlify/functions/offers', { cache: 'no-store' })
     .then(function (res) {
@@ -402,6 +424,8 @@ function closeOfferLocker() {
 function openOfferLocker(options) {
   const title = options.title || 'Game';
   const platform = detectDevicePlatform();
+  const selectedPlatform = options.platform;
+  if (selectedPlatform !== 'Android' && selectedPlatform !== 'iOS') return;
   const image = options.image || '';
   closeOfferLocker();
 
@@ -417,7 +441,7 @@ function openOfferLocker(options) {
         (image ? '<img class="locker-game-icon" src="' + esc(image) + '" alt="' + esc(title) + '">' : '<div class="locker-game-icon locker-game-fallback">' + ICONS.gamepad + '</div>') +
         '<div class="locker-logo">PLAY<span>MOD</span></div>' +
         '<div class="locker-title">Sponsored <em>Offers</em></div>' +
-        '<div class="locker-sub">Optional third-party offers for your device: ' + esc(platform) + '. They do not unlock or provide a game download.</div>' +
+        '<div class="locker-sub">Selected platform: ' + esc(selectedPlatform) + '. Optional third-party offers are matched to your actual device (' + esc(platform) + '). They do not unlock or provide a game download.</div>' +
         '<div class="locker-progress"><span>Verified completion</span><div class="locker-progress-bar"><div class="locker-progress-fill" id="lockerProgressFill"></div></div><span id="lockerProgressLabel">0 / 1</span></div>' +
         '<div class="locker-progress" id="lockerStatus" role="status" aria-live="polite">No completion verified.</div>' +
       '</div>' +
@@ -439,10 +463,9 @@ function openOfferLocker(options) {
   loadLockerFeed(function (offers) {
     if (!locker.isConnected) return;
     const container = locker.querySelector('#lockerOffersContainer');
-    // Keep OGAds order, skip malformed links before taking the first four.
-    const list = offers.filter(function (offer) {
-      return offer && safeOfferUrl(offer.link || offer.tracking_link || offer.url || offer.offer_url);
-    }).slice(0, 4);
+    // Global hybrid ranking: eligible OGAds offers only, boosted first,
+    // then higher EPC. Preserve provider order when scores are equal.
+    const list = rankLockerOffers(offers);
     if (!list.length) {
       container.innerHTML = '<div class="locker-error">No offers available for your device right now.</div>';
       return;
@@ -486,28 +509,30 @@ function initDownloadButtons() {
     const btn = e.target.closest('.js-locker');
     if (!btn) return;
     e.preventDefault();
-    openOfferLocker({ title: btn.getAttribute('data-title'), image: btn.getAttribute('data-image') });
+    const platform = btn.getAttribute('data-platform');
+    if (platform !== 'Android' && platform !== 'iOS') return;
+    openOfferLocker({ title: btn.getAttribute('data-title'), image: btn.getAttribute('data-image'), platform: platform });
   });
 }
 
 function renderPlatformButtons(game) {
   const current = detectDevicePlatform();
-  const platforms = current === 'Android' ? ['Android', 'iOS'] : ['iOS', 'Android'];
+  const platforms = ['iOS', 'Android'];
   const buttons = platforms.map(function (platform) {
     const ios = platform === 'iOS';
     const url = platformDownloadUrl(game, platform);
     const label = ios ? 'Apple iOS' : 'Android';
-    const inner = '<span class="platform-icon-wrap">' + (ios ? ICONS.apple : ICONS.android) + '</span>' +
-      '<div class="platform-text-wrap"><span class="platform-sub">' + (url ? 'Download for' : 'Download unavailable') + '</span>' +
-      '<span class="platform-title">' + label + '</span></div>' +
-      '<span class="platform-pill">' + (platform === current ? 'Your device' : (url ? 'Open' : 'Unavailable')) + '</span>';
     const cls = 'btn-platform ' + (ios ? 'btn-ios' : 'btn-android');
-    return url ? '<a class="' + cls + '" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + inner + '</a>' :
-      '<div class="' + cls + '" aria-disabled="true" style="cursor:default;opacity:.8">' + inner + '</div>';
+    return '<button type="button" class="' + cls + ' js-locker" data-platform="' + esc(platform) + '" data-title="' + esc(game.title) + '" data-image="' + esc(game.image) + '">' +
+      '<span class="platform-icon-wrap">' + (ios ? ICONS.apple : ICONS.android) + '</span>' +
+      '<div class="platform-text-wrap"><span class="platform-sub">View optional offers</span>' +
+      '<span class="platform-title">' + label + '</span></div>' +
+      '<span class="platform-pill">' + (platform === current ? 'Your device' : 'Offers') + '</span></button>' +
+      (url ? '<a class="btn btn-outline btn-sm" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">Download for ' + label + '</a>' : '');
   }).join('');
   return '<div class="dl-platform-group">' + buttons + '</div>' +
-    '<p class="text-xs text-muted-foreground mt-2">Detected device: ' + esc(current) + '. Download availability depends on verified links.</p>' +
-    '<button type="button" class="btn btn-outline btn-sm js-locker mt-3" data-title="' + esc(game.title) + '" data-image="' + esc(game.image) + '">View optional sponsored offers</button>';
+    '<p class="text-xs text-muted-foreground mt-2">Choose a platform to view optional offers. Offers are matched to your actual device and do not unlock downloads. ' +
+    (platforms.some(function (p) { return platformDownloadUrl(game, p); }) ? '' : 'No verified download links are available.') + '</p>';
 }
 
 function renderHome() {
@@ -820,7 +845,7 @@ function renderDetail() {
 
             '<div class="cta-box">' +
               '<h3 class="text-lg font-bold mb-2">Ready to Play?</h3>' +
-              '<p class="text-sm text-muted-foreground mb-4">Check download availability for your platform below.</p>' +
+              '<p class="text-sm text-muted-foreground mb-4">Choose Android or Apple iOS to view optional sponsored offers.</p>' +
               renderPlatformButtons(game) +
               '<div class="flex items-center justify-center gap-4 mt-3 text-xs text-muted-foreground">' +
                 '<span class="flex items-center gap-1"><span class="icon-sm">' + ICONS.zap + '</span>Fast CDN Mirror</span>' +
