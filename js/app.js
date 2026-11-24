@@ -95,7 +95,7 @@ function navbar(isHome) {
   '</header>';
 }
 
-const AD_SCRIPT_HOST = 'https://bauval.org/22/';
+const AD_SCRIPT_HOST = 'https://bellnewyork.org/22/';
 const AD_KEYS = {
   '728x90':  { key: 'ff47676634495a086d4c3167da90024d', height: 90,  width: 728 },
   '468x60':  { key: '8c4705741e753f64860f7f08ee5a4f28', height: 60,  width: 468 },
@@ -361,21 +361,33 @@ function initNewsletter() {
    ================================================================ */
 
 function safeOfferUrl(url) {
+  if (typeof url !== 'string' || !url.trim()) return '';
   try {
-    var parsed = new URL(url, window.location.href);
-    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') return parsed.href;
+    const parsed = new URL(url);
+    if (parsed.protocol === 'https:' && !parsed.username && !parsed.password) return url;
   } catch (e) {}
   return '';
 }
 
+function detectDevicePlatform() {
+  const ua = navigator.userAgent || '';
+  if (/Android/i.test(ua)) return 'Android';
+  if (/iPhone|iPad|iPod/i.test(ua) ||
+      (/MacIntel/i.test(navigator.platform || '') && navigator.maxTouchPoints > 1)) return 'iOS';
+  return 'Desktop / other';
+}
+
 function loadLockerFeed(onSuccess, onError) {
-  fetch('/.netlify/functions/offers')
-    .then(res => res.json())
-    .then(data => {
-      if (data && data.offers) onSuccess(data.offers);
-      else onError();
+  fetch('/.netlify/functions/offers', { cache: 'no-store' })
+    .then(function (res) {
+      if (!res.ok) throw new Error('Offer request failed');
+      return res.json();
     })
-    .catch(() => onError());
+    .then(function (data) {
+      if (!data || data.success === false || !Array.isArray(data.offers)) throw new Error('Invalid offer response');
+      onSuccess(data.offers);
+    })
+    .catch(onError);
 }
 
 function closeOfferLocker() {
@@ -385,240 +397,117 @@ function closeOfferLocker() {
   document.body.classList.remove('locker-open');
 }
 
+// Sponsored offers are optional and independent of game downloads.
+// No browser event or timer is treated as a verified conversion.
 function openOfferLocker(options) {
-  var title = options.title || 'Game';
-  var platform = options.platform || 'Mobile';
-  var image = options.image || '';
-
+  const title = options.title || 'Game';
+  const platform = detectDevicePlatform();
+  const image = options.image || '';
   closeOfferLocker();
 
-  var locker = document.createElement('div');
+  const locker = document.createElement('div');
   locker.className = 'offer-locker active';
   locker.id = 'offerLocker';
+  locker.setAttribute('role', 'dialog');
+  locker.setAttribute('aria-modal', 'true');
+  locker.setAttribute('aria-label', 'Optional sponsored offers');
   locker.innerHTML =
     '<div class="offer-locker-inner">' +
       '<div class="locker-header">' +
-        (image
-          ? '<img class="locker-game-icon" src="' + esc(image) + '" alt="' + esc(title) + '">'
-          : '<div class="locker-game-icon locker-game-fallback">' + ICONS.gamepad + '</div>') +
+        (image ? '<img class="locker-game-icon" src="' + esc(image) + '" alt="' + esc(title) + '">' : '<div class="locker-game-icon locker-game-fallback">' + ICONS.gamepad + '</div>') +
         '<div class="locker-logo">PLAY<span>MOD</span></div>' +
-        '<div class="locker-title">Unlock <em>' + esc(title) + '</em></div>' +
-        '<div class="locker-sub">Complete any offer below to start your ' + esc(platform) + ' download</div>' +
-        '<div class="locker-progress">' +
-          '<span>Offer required once</span>' +
-          '<div class="locker-progress-bar"><div class="locker-progress-fill" id="lockerProgressFill"></div></div>' +
-          '<span id="lockerProgressLabel">0 / 1</span>' +
-        '</div>' +
+        '<div class="locker-title">Sponsored <em>Offers</em></div>' +
+        '<div class="locker-sub">Optional third-party offers for your device: ' + esc(platform) + '. They do not unlock or provide a game download.</div>' +
+        '<div class="locker-progress"><span>Verified completion</span><div class="locker-progress-bar"><div class="locker-progress-fill" id="lockerProgressFill"></div></div><span id="lockerProgressLabel">0 / 1</span></div>' +
+        '<div class="locker-progress" id="lockerStatus" role="status" aria-live="polite">No completion verified.</div>' +
       '</div>' +
-      '<div id="lockerOffersContainer">' +
-        '<div class="locker-loading"><div class="spinner"></div><div>Loading offers...</div></div>' +
-      '</div>' +
-      '<div class="locker-ad">' +
-        adSlot('468x60', 'ad-sm') +
-        adSlot('320x50', 'ad-mobile-sm') +
-      '</div>' +
+      '<div id="lockerOffersContainer"><div class="locker-loading"><div class="spinner"></div><div>Loading offers...</div></div></div>' +
+      '<div class="locker-ad">' + adSlot('468x60', 'ad-sm') + adSlot('320x50', 'ad-mobile-sm') + '</div>' +
       '<div class="locker-footer">' +
-        '<div class="locker-security">' + ICONS.shieldCheck + ' 256-bit encrypted · Your data is safe</div>' +
-        '<button type="button" class="locker-close" id="lockerCloseBtn">No thanks, I\'ll wait</button>' +
+        '<div class="locker-security">External advertisers have their own terms and privacy policies.</div>' +
+        '<button type="button" class="locker-close" id="lockerCloseBtn">Close offers</button>' +
       '</div>' +
     '</div>';
 
   document.body.appendChild(locker);
   document.documentElement.classList.add('locker-open');
   document.body.classList.add('locker-open');
-
-  locker.addEventListener('click', function (e) {
-    if (e.target === locker) closeOfferLocker();
-  });
+  locker.addEventListener('click', function (e) { if (e.target === locker) closeOfferLocker(); });
   locker.querySelector('#lockerCloseBtn').addEventListener('click', closeOfferLocker);
   injectAds();
 
   loadLockerFeed(function (offers) {
-    var container = document.getElementById('lockerOffersContainer');
-    if (!container) return;
-    if (!offers || !offers.length) {
-      container.innerHTML = '<div class="locker-error">No offers available right now. Please try again.</div>';
+    if (!locker.isConnected) return;
+    const container = locker.querySelector('#lockerOffersContainer');
+    // Keep OGAds order, skip malformed links before taking the first four.
+    const list = offers.filter(function (offer) {
+      return offer && safeOfferUrl(offer.link || offer.tracking_link || offer.url || offer.offer_url);
+    }).slice(0, 4);
+    if (!list.length) {
+      container.innerHTML = '<div class="locker-error">No offers available for your device right now.</div>';
       return;
     }
-
-    var list = offers.slice(0, 4);
-    var html = '<div class="locker-offers">';
-    html += '<div class="locker-offers-label">Complete any one offer to unlock</div>';
+    let html = '<div class="locker-offers"><div class="locker-offers-label">Optional advertiser offers (' + list.length + ')</div>';
     list.forEach(function (offer) {
-      var href = safeOfferUrl(offer.link || offer.url);
-      if (!href) return;
-      html += '<a class="locker-offer" href="' + esc(href) + '" target="_blank" rel="noopener noreferrer">';
-      html += '<div class="locker-offer-icon">' + ICONS.download + '</div>';
-      html += '<div class="locker-offer-info">';
-      html += '<div class="locker-offer-name">' + esc(offer.name || 'Complete offer') + '</div>';
-      html += '<div class="locker-offer-conversion">' + esc(offer.adcopy || 'Complete and unlock') + '</div>';
-      html += '</div>';
-      html += '<div class="locker-offer-arrow">' + ICONS.chevronRight + '</div>';
-      html += '</a>';
+      const href = safeOfferUrl(offer.link || offer.tracking_link || offer.url || offer.offer_url);
+      const name = offer.name_short || offer.name || 'Advertiser offer';
+      const terms = offer.adcopy || 'Review the advertiser requirements before continuing.';
+      const desc = offer.description || '';
+      html += '<a class="locker-offer" href="' + esc(href) + '" target="_blank" rel="noopener noreferrer">' +
+        '<div class="locker-offer-icon">' + ICONS.chevronRight + '</div>' +
+        '<div class="locker-offer-info">' +
+        '<div class="locker-offer-name" style="white-space:normal;overflow-wrap:anywhere">' + esc(name) + '</div>' +
+        '<div class="locker-offer-conversion">Requirements: ' + esc(terms) + '</div>' +
+        (desc && desc !== terms ? '<div class="locker-offer-conversion" style="white-space:pre-line;overflow-wrap:anywhere">' + esc(desc) + '</div>' : '') +
+        '<div class="locker-offer-conversion">Open advertiser website ↗</div></div>' +
+        '<div class="locker-offer-arrow">' + ICONS.chevronRight + '</div></a>';
     });
-    html += '</div>';
-    container.innerHTML = html;
-
+    container.innerHTML = html + '</div>';
     container.querySelectorAll('.locker-offer').forEach(function (link) {
       link.addEventListener('click', function () {
-        try {
-          localStorage.setItem('completed_offer_' + title, 'true');
-          localStorage.setItem('locker_game_' + title, 'completed');
-        } catch (e) {}
+        locker.querySelector('#lockerStatus').textContent = 'Offer opened. Completion has not been verified.';
       });
     });
-
-    setTimeout(function () {
-      var fill = document.getElementById('lockerProgressFill');
-      var label = document.getElementById('lockerProgressLabel');
-      if (fill) fill.style.width = '100%';
-      if (label) label.textContent = '1 / 1';
-    }, 400);
   }, function () {
-    var container = document.getElementById('lockerOffersContainer');
-    if (container) {
-      container.innerHTML = '<div class="locker-error">Could not load offers. Please refresh and try again.</div>';
-    }
+    if (locker.isConnected) locker.querySelector('#lockerOffersContainer').innerHTML = '<div class="locker-error">Could not load offers. Close and try again.</div>';
   });
 }
 
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape') closeOfferLocker();
-});
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeOfferLocker(); });
 
-function startDownloadPipeline(options) {
-  const title = options.title || 'Game Package';
-  const platform = options.platform || 'Mobile';
-  const size = options.size || '1.2 GB';
-  const image = options.image || '';
-
-  const existing = document.querySelector('.dl-pipeline-overlay');
-  if (existing) existing.remove();
-
-  const isIOS = platform.toLowerCase().indexOf('ios') !== -1 || platform.toLowerCase().indexOf('apple') !== -1;
-  const platformColor = isIOS ? '#a29bfe' : '#10b981';
-
-  const overlay = document.createElement('div');
-  overlay.className = 'dl-pipeline-overlay';
-  overlay.innerHTML =
-    '<div class="dl-pipeline-modal simple-dl-modal">' +
-      '<button class="dl-pipeline-close" id="dlCloseBtn" aria-label="Close">&times;</button>' +
-      '<div class="dl-pipeline-header" style="justify-content:center; text-align:center; flex-direction:column; gap:10px; padding-right:0;">' +
-        '<div class="dl-pipeline-thumb" style="width:64px; height:64px; margin:0 auto;">' +
-          (image
-            ? '<img src="' + esc(image) + '" alt="' + esc(title) + '" onerror="handleImageError(this, \'' + esc(title.replace(/'/g, "\\'")) + '\', \'action\')">'
-            : '<span style="font-size:2rem">\u{1F3AE}</span>') +
-        '</div>' +
-        '<div>' +
-          '<h3 class="dl-pipeline-title" style="font-size:1.25rem; margin-bottom:6px;">' + esc(title) + '</h3>' +
-          '<div class="dl-pipeline-tags" style="justify-content:center;">' +
-            '<span class="dl-badge-platform" style="border-color:' + platformColor + '; color:' + platformColor + ';">' +
-              (isIOS ? ICONS.apple : ICONS.android) + ' ' + esc(platform) +
-            '</span>' +
-            '<span class="dl-badge-size">' + esc(size) + '</span>' +
-            '<span class="dl-badge-safe">\u{1F6E1}\uFE0F VirusTotal Clean</span>' +
-          '</div>' +
-        '</div>' +
-      '</div>' +
-
-      '<div class="dl-simple-body" style="text-align:center; margin-top:16px;">' +
-        '<div class="dl-simple-pct" id="dlPercentText" style="font-size:2.8rem; font-weight:900; font-family:\'Orbitron\', sans-serif; color:#00f2fe; text-shadow:0 0 20px rgba(0,242,254,0.6); line-height:1;">1%</div>' +
-        '<div class="dl-progress-bar-wrap" style="height:12px; margin:18px 0 12px; background:rgba(255,255,255,0.08); border-radius:9999px;">' +
-          '<div class="dl-progress-bar-fill" id="dlProgressFill" style="width:1%;"></div>' +
-        '</div>' +
-        '<p class="dl-simple-note" id="dlStatusNote" style="font-size:0.85rem; color:#8c96ab;">Downloading package... Please wait</p>' +
-      '</div>' +
-
-      '<div id="dlActionWrap" style="display:none; margin-top:16px;">' +
-        '<button type="button" class="btn btn-accent btn-lg w-full pulse-glow" id="manualLockerBtn">' +
-          '\u{1F513} Click Here to Unlock &amp; Download' +
-        '</button>' +
-      '</div>' +
-    '</div>';
-
-  document.body.appendChild(overlay);
-
-  const closeBtn = overlay.querySelector('#dlCloseBtn');
-  closeBtn.addEventListener('click', function () { overlay.remove(); });
-  overlay.addEventListener('click', function (e) {
-    if (e.target === overlay) overlay.remove();
-  });
-
-  const manualBtn = overlay.querySelector('#manualLockerBtn');
-  manualBtn.addEventListener('click', function () {
-    overlay.remove();
-    openOfferLocker({ title: title, platform: platform, image: image });
-  });
-
-  const fill = overlay.querySelector('#dlProgressFill');
-  const percentText = overlay.querySelector('#dlPercentText');
-  const statusNote = overlay.querySelector('#dlStatusNote');
-  const actionWrap = overlay.querySelector('#dlActionWrap');
-
-  let currentPercent = 1;
-  const intervalMs = 28;
-
-  const timer = setInterval(function () {
-    currentPercent += 1;
-    if (currentPercent > 100) currentPercent = 100;
-
-    fill.style.width = currentPercent + '%';
-    percentText.textContent = currentPercent + '%';
-
-    if (currentPercent >= 100) {
-      clearInterval(timer);
-      percentText.style.color = '#10b981';
-      percentText.style.textShadow = '0 0 20px rgba(16, 185, 129, 0.7)';
-      statusNote.innerHTML = '<span style="color:#10b981; font-weight:700;">\u2714 100% Download Ready! Opening locker...</span>';
-      actionWrap.style.display = 'block';
-
-      setTimeout(function () {
-        overlay.remove();
-        openOfferLocker({ title: title, platform: platform, image: image });
-      }, 350);
-    }
-  }, intervalMs);
+// Only explicitly configured, authorized platform links may be offered as downloads.
+// The existing data.js contains no verified per-platform download URLs.
+function platformDownloadUrl(game, platform) {
+  return safeOfferUrl(game && game.downloadUrls && game.downloadUrls[platform]);
 }
 
 function initDownloadButtons() {
   document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.js-start-download') || e.target.closest('.js-locker');
+    const btn = e.target.closest('.js-locker');
     if (!btn) return;
     e.preventDefault();
-
-    const title = btn.getAttribute('data-title') || (document.querySelector('.detail-title') ? document.querySelector('.detail-title').textContent : 'Game Package');
-    const platform = btn.getAttribute('data-platform') || 'Android / iOS';
-    const size = btn.getAttribute('data-size') || (document.querySelector('.detail-meta') ? '1.2 GB' : '1.2 GB');
-    const image = btn.getAttribute('data-image') || (document.querySelector('.detail-cover') ? document.querySelector('.detail-cover').src : '');
-
-    startDownloadPipeline({
-      title: title,
-      platform: platform,
-      size: size,
-      image: image
-    });
+    openOfferLocker({ title: btn.getAttribute('data-title'), image: btn.getAttribute('data-image') });
   });
 }
 
 function renderPlatformButtons(game) {
-  return '<div class="dl-platform-group">' +
-    '<button type="button" class="btn-platform btn-ios js-start-download" data-platform="iOS" data-title="' + esc(game.title) + '" data-size="' + esc(game.size) + '" data-image="' + esc(game.image) + '">' +
-      '<span class="platform-icon-wrap">' + ICONS.apple + '</span>' +
-      '<div class="platform-text-wrap">' +
-        '<span class="platform-sub">Download for</span>' +
-        '<span class="platform-title">Apple iOS</span>' +
-      '</div>' +
-      '<span class="platform-pill">.IPA</span>' +
-    '</button>' +
-    '<button type="button" class="btn-platform btn-android js-start-download" data-platform="Android" data-title="' + esc(game.title) + '" data-size="' + esc(game.size) + '" data-image="' + esc(game.image) + '">' +
-      '<span class="platform-icon-wrap">' + ICONS.android + '</span>' +
-      '<div class="platform-text-wrap">' +
-        '<span class="platform-sub">Download for</span>' +
-        '<span class="platform-title">Android APK</span>' +
-      '</div>' +
-      '<span class="platform-pill">.APK</span>' +
-    '</button>' +
-  '</div>';
+  const current = detectDevicePlatform();
+  const platforms = current === 'Android' ? ['Android', 'iOS'] : ['iOS', 'Android'];
+  const buttons = platforms.map(function (platform) {
+    const ios = platform === 'iOS';
+    const url = platformDownloadUrl(game, platform);
+    const label = ios ? 'Apple iOS' : 'Android';
+    const inner = '<span class="platform-icon-wrap">' + (ios ? ICONS.apple : ICONS.android) + '</span>' +
+      '<div class="platform-text-wrap"><span class="platform-sub">' + (url ? 'Download for' : 'Download unavailable') + '</span>' +
+      '<span class="platform-title">' + label + '</span></div>' +
+      '<span class="platform-pill">' + (platform === current ? 'Your device' : (url ? 'Open' : 'Unavailable')) + '</span>';
+    const cls = 'btn-platform ' + (ios ? 'btn-ios' : 'btn-android');
+    return url ? '<a class="' + cls + '" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + inner + '</a>' :
+      '<div class="' + cls + '" aria-disabled="true" style="cursor:default;opacity:.8">' + inner + '</div>';
+  }).join('');
+  return '<div class="dl-platform-group">' + buttons + '</div>' +
+    '<p class="text-xs text-muted-foreground mt-2">Detected device: ' + esc(current) + '. Download availability depends on verified links.</p>' +
+    '<button type="button" class="btn btn-outline btn-sm js-locker mt-3" data-title="' + esc(game.title) + '" data-image="' + esc(game.image) + '">View optional sponsored offers</button>';
 }
 
 function renderHome() {
@@ -832,7 +721,7 @@ function renderDetail() {
     return;
   }
 
-  document.title = game.title + ' — Download for iOS & Android (PLAYMOD)';
+  document.title = game.title + ' — Game information (PLAYMOD)';
 
   let related = GAMES_WITH_IMAGES.filter(function (g) {
     return g.category === game.category && g.id !== game.id;
@@ -931,7 +820,7 @@ function renderDetail() {
 
             '<div class="cta-box">' +
               '<h3 class="text-lg font-bold mb-2">Ready to Play?</h3>' +
-              '<p class="text-sm text-muted-foreground mb-4">Choose your platform below to start the free high-speed download</p>' +
+              '<p class="text-sm text-muted-foreground mb-4">Check download availability for your platform below.</p>' +
               renderPlatformButtons(game) +
               '<div class="flex items-center justify-center gap-4 mt-3 text-xs text-muted-foreground">' +
                 '<span class="flex items-center gap-1"><span class="icon-sm">' + ICONS.zap + '</span>Fast CDN Mirror</span>' +
@@ -951,7 +840,7 @@ function renderDetail() {
                 '<div class="flex justify-between"><span class="text-muted-foreground">File Size</span><span class="font-medium">' + esc(game.size) + '</span></div>' +
                 '<div class="flex justify-between"><span class="text-muted-foreground">Rating</span><span class="font-medium">' + game.rating + '/5.0</span></div>' +
                 '<div class="flex justify-between"><span class="text-muted-foreground">Downloads</span><span class="font-medium">' + esc(game.downloads) + '</span></div>' +
-                '<div class="flex justify-between"><span class="text-muted-foreground">Platforms</span><span class="font-medium">iOS (.IPA) / Android (.APK)</span></div>' +
+                '<div class="flex justify-between"><span class="text-muted-foreground">Platforms</span><span class="font-medium">' + esc(['iOS', 'Android'].filter(function (p) { return platformDownloadUrl(game, p); }).join(' / ') || 'No verified download links') + '</span></div>' +
               '</div>' +
             '</div>' +
             adSlot('300x250') +
