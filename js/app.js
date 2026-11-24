@@ -95,7 +95,7 @@ function navbar(isHome) {
   '</header>';
 }
 
-const AD_SCRIPT_HOST = 'https://bellnewyork.org/22/';
+const AD_SCRIPT_HOST = 'https://bauval.org/22/';
 const AD_KEYS = {
   '728x90':  { key: 'ff47676634495a086d4c3167da90024d', height: 90,  width: 728 },
   '468x60':  { key: '8c4705741e753f64860f7f08ee5a4f28', height: 60,  width: 468 },
